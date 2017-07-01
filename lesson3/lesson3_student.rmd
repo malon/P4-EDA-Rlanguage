@@ -1,0 +1,410 @@
+Lesson 3
+========================================================
+
+***
+
+### What to Do First?
+Notes:
+
+***
+
+### Pseudo-Facebook User Data
+Notes:
+
+```{r Pseudo-Facebook User Data}
+getwd()
+list.files()
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+# read.delim('pseudo_facebook.tsv') unction defaults to the tab character as the separator between values and the period as the decimal character.
+
+```
+
+***
+
+### Histogram of Users' Birthdays
+Notes:
+
+```{r Histogram of Users\' Birthdays}
+#install.packages('ggplot2', dependencies = TRUE)
+library(ggplot2)
+```
+```{r}
+names(pf) #column names
+qplot(x = dob_day, data = pf) +
+  scale_x_continuous(breaks=1:31)
+```
+The ggthemes package was developed by Jeffery Arnold. Check out examples of the themes on the github page. 
+Chris is using theme_minimal()with the font size set to 24, which is why his output might look slightly different than yours. You can set the same theme in R by running the following code, or you can set the theme to a choice of your own. 
+theme_set(theme_minimal(24)) 
+
+```{r}
+#Run the following code in R to get other themes. 
+#install.packages('ggthemes', dependencies = TRUE) 
+library(ggthemes) 
+```
+
+
+### Faceting
+Notes:
+ Faceting in ggplot2  (http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/)
+
+```{r Faceting}
+qplot(x = dob_day, data = pf) +
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~dob_month, ncol = 3)
+# facet_wrap(~variable_to_facet_over)
+# facet_grid(var_to_split_in_vertical_direction ~ var_to_split_in_horizontal) # more useful when you are faceting over two or more variables
+```
+
+
+### Be Skeptical - Outliers and Anomalies
+Notes:
+Outliers or anomalies could represent bad data or limitations of the data, but they could be accurate data about an extreme case.
+
+***
+
+### Moira's Outlier
+Notes:
+#### Which case do you think applies to Moira’s outlier?
+Response:
+Bad data of an extreme case
+***
+
+### Friend Count
+Notes:
+
+#### What code would you enter to create a histogram of friend counts?
+
+```{r Friend Count}
+qplot(x = friend_count, data = pf)
+#idem
+qplot(x = friend_count, data = pf, binwidth = 25) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 100))
+```
+
+#### How is this plot similar to Moira's first plot?
+Response:
+Long tail plot
+***
+
+### Limiting the Axes
+Notes:
+Scales in ggplot2 
+http://ggplot2.tidyverse.org/reference/scale_continuous.html
+
+```{r Limiting the Axes}
+qplot(x = friend_count, data = pf, xlim = c(0, 1000))
+#idem
+qplot(x = friend_count, data = pf, binwidth = 25) +
+  scale_x_continuous(limits = c(0, 1000))
+```
+
+### Exploring with Bin Width
+Notes:
+
+***
+
+### Adjusting the Bin Width
+Notes:
+
+### Faceting Friend Count
+```{r Faceting Friend Count}
+# What code would you add to create a facet the histogram by gender?
+# Add it to the code below.
+qplot(x = friend_count, data = pf, binwidth = 50) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+```
+
+***
+
+### Omitting NA Values
+Notes:
+
+```{r Omitting NA Values}
+qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 100) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+```
+
+***
+
+### Statistics 'by' Gender
+Notes:
+
+```{r Statistics \'by\' Gender}
+table(pf$gender)
+by(pf$friend_count, pf$gender, summary)
+#by(variable, categorical variable, function)
+```
+
+#### Who on average has more friends: men or women?
+Response:
+women
+#### What's the difference between the median friend count for women and men?
+Response:
+22
+
+#### Why would the median be a better measure than the mean?
+Response:
+Median is more robust than the mean.
+***
+
+### Tenure
+Notes:
+
+```{r Tenure} 
+# antiguedad
+qplot(x = tenure, data = pf, binwidth = 30,
+      color = I('black'), fill = I('#099DD9'))
+
+# see ggplot theme documentation for color and fill
+```
+
+***
+
+#### How would you create a histogram of tenure by year?
+
+```{r Tenure Histogram by Year}
+# tenure is in days
+# similar to qplot(x = tenure, data = pf, binwidth = 365... but does not work well with breaks and limits...
+# use .25 o 1
+qplot(x = tenure/365, data = pf, binwidth = .25,
+      color = I('black'), fill = I('#099DD9')) +
+  scale_x_continuous(breaks = seq(1, 7, 1), limits = c(0, 7))
+``` 
+
+***
+
+### Labeling Plots
+Notes:
+
+```{r Labeling Plots}
+qplot(x = tenure/365, data = pf, binwidth = .25,
+      xlab = "Number of years using facebook",
+      ylab = "Numer of users in sample",
+      color = I('black'), fill = I('#099DD9')) +
+  scale_x_continuous(breaks = seq(1, 7, 1), limits = c(0, 7))
+```
+
+***
+
+### User Ages
+Notes:
+
+```{r User Ages}
+summary(pf$age)
+qplot(x = age, data = pf, binwidth = .25,
+      #xlab = "Number of years using facebook",
+      #ylab = "Numer of users in sample",
+      color = I('black'), fill = I('#099DD9')) + 
+  scale_x_continuous(breaks = seq(13, 113, 10), limits = c(13, 113))
+```
+
+#### What do you notice?
+Response:
+
+***
+
+### The Spread of Memes
+Notes:
+
+***
+
+### Lada's Money Bag Meme
+Notes:
+
+***
+
+### Transforming Data
+When we have tails like this we might need to transform data in order to have a better comprehension of what is happening in the data (see patterns more clearly), like using logarithm or squared scales. A lot of common statistical techniques like linear regression are based on the assumption that variables have normal distributions, so by taking the log of a variable we can transform our data to turn it into maybe a normal distribution or something close to a normal distribution if we'll be using a linear regression.
+***
+```{r}
+qplot(x = friend_count, data = pf)
+summary(pf$friend_count)
+summary(log10(pf$friend_count + 1)) # +1 to avoid zero, when calculating the mean, result negative infinitive
+# another transformation
+summary(sqrt(pf$friend_count))
+
+#install.packages('gridExtra')
+library('gridExtra')
+p1 <- qplot(x = friend_count, data = pf)
+p2 <- qplot(x = log10(friend_count + 1), data = pf)
+p3 <- qplot(x = sqrt(friend_count), data = pf)
+grid.arrange(p1, p2, p3, ncol=1)
+```
+
+### Transforming data alternative solution with ggplot
+### Difference with ggplot: x and y variables inside aes (aesthetic) and adding geometry
+Notes:
+
+```{r}
+p1 <- ggplot(aes(x = friend_count), data = pf) + geom_histogram()
+p2 <- p1 + scale_x_log10()
+p3 <- p1 + scale_x_sqrt()
+
+grid.arrange(p1, p2, p3, ncol = 1)
+```
+
+
+
+### Add a Scaling Layer
+Notes:
+
+```{r Add a Scaling Layer}
+logScale <- qplot(x = log10(friend_count), data = pf)
+countScale <- ggplot(aes(x = friend_count), data = pf) + geom_histogram() + scale_x_log10()
+grid.arrange(logScale, countScale, ncol = 2)
+# Adding a scale to aplot too, difference is in the x scale labeling
+qplot(x = friend_count, data = pf) +
+  scale_x_log10()
+
+```
+
+***
+
+
+### Frequency Polygons
+Another type of plot to compare distributions, similar to histograms but they draw a curve to connect the counts of the histogram:
+
+```{r Frequency Polygons}
+qplot(x = friend_count, data = subset(pf, !is.na(gender)), 
+      binwidth = 10, geom = 'freqpoly', color = gender) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50)) 
+
+# but who has more friends on average, we need proportions
+
+qplot(x = friend_count, y = ..count../sum(..count..),
+      data = subset(pf, !is.na(gender)), 
+      xlab = 'Friend count',
+      ylab = 'proportion of users with that friend count',
+      binwidth = 10, geom = 'freqpoly', color = gender) +
+  scale_x_continuous(limits = c(0, 1000),
+                     breaks = seq(0, 1000, 50)) 
+
+# equivalent
+ggplot(aes(x = friend_count, y = ..count../sum(..count..)),
+       data = subset(pf, !is.na(gender))) +
+  geom_freqpoly(aes(color = gender), binwidth=10) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) +
+  xlab('Friend Count') +
+  ylab('Proportion of users with that friend count')
+
+#Note that sum(..count..) will sum across color, so the proportions displayed are based on total users. To plot these proportions within each group, you can try y = ..density...
+```
+
+***
+
+### Likes on the Web
+Notes:
+
+```{r Likes on the Web}
+qplot(x = www_likes, data = subset(pf, !is.na(gender)), 
+       geom = 'freqpoly', color = gender) +
+  scale_x_log10()
+
+by(pf$www_likes, pf$gender, sum)
+
+```
+
+
+***
+### Histograms review
+
+```{r Histograms review}
+qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 25)+
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000,50))+
+  facet_wrap(~gender)
+```
+
+### Box Plots
+Notes:
+
+```{r Box Plots}
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom = 'boxplot') 
+
+```
+
+#### Adjust the code to focus on users who have friend counts between 0 and 1000.
+
+```{r}
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom = 'boxplot', ylim = c(0, 1000)) 
+# alternative
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom = 'boxplot') +
+  scale_y_continuous(limits = c(0, 1000))
+#better way
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 1000))
+```
+
+***
+
+### Box Plots, Quartiles, and Friendships
+Notes:
+
+```{r Box Plots, Quartiles, and Friendships}
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 250))
+# coord_cartesian for the graph to match the data from below table
+by(pf$friend_count, pf$gender, summary)
+```
+
+#### On average, who initiated more friendships in our sample: men or women?
+Response:
+#### Write about some ways that you can verify your answer.
+Response:
+```{r Friend Requests by Gender}
+qplot(x = gender, y = friendships_initiated, 
+      data = subset(pf, !is.na(gender)),
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 150))
+
+by(pf$friendships_initiated, pf$gender, summary)
+```
+
+
+### Getting Logical
+Notes:
+Convert to binary variables from variables with a lot of zeroes
+
+```{r Getting Logical}
+summary(pf$mobile_likes)
+summary(pf$mobile_likes > 0)
+
+mobile_check_in <- NA
+pf$mobile_check_in <- ifelse(pf$mobile_likes > 0, 1, 0)
+pf$mobile_check_in <- factor(pf$mobile_check_in)
+
+summary(pf$mobile_check_in)
+        
+```
+
+### Percentage of user using mobile check in
+
+```{r}
+summary(pf$mobile_check_in)
+sum(pf$mobile_check_in == 1) / length(pf$mobile_check_in)
+        
+```
+
+### Analyzing One Variable
+Reflection:
+***
+Analyzing one variable distribution to understand them with histograms, box plots and frequency plots.
+Adjusting limits, axis transformation (logarithmical, squared, to obtain sometimes normal distributions for being able to make linear regressions)
+
+Click **KnitHTML** to see all of your hard work and to have an html
+page of this lesson, your answers, and your notes!
