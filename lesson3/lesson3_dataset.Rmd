@@ -1,0 +1,209 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+
+
+Lesson 3 DataSet
+========================================================
+
+***
+
+### Loading diamonds dataset
+```{r}
+library(ggplot2)
+data("diamonds")
+```
+
+Note: You need to run these command each time you launch RStudio to access the diamonds data set. RStudio won't remember which packages and data sets you loaded unless you change your preferences or save your workspace.
+
+You should notice that the diamonds data set will be listed as a 'Promise' in the workspace. This is a special object in R, and you need to run a command on the data to fully load the data set. Try running a summary.
+
+```{r}
+summary(diamonds)
+```
+
+Note about datasets: There are other data sets that come with R. You can load these data sets by typing the command data(DATA_SET_NAME).
+
+You can learn more about the diamonds data set by typing ?diamonds.
+***
+
+### Structure of the dataframe of diamonds
+```{r}
+str(diamonds)
+```
+
+***
+### Histogram of prices
+```{r}
+qplot(x = price, data = diamonds, binwidth = 50) +
+  scale_x_continuous(limits = c(0, 20000), breaks = seq(0, 20000, 2000))
+```
+***
+### Description of prices
+```{r}
+summary(diamonds$price)
+```
+
+***
+### Counting - length
+```{r}
+d_to_500 <- subset(diamonds, price < 500)
+length(d_to_500$price)
+d_to_250 <- subset(diamonds, price < 250)
+length(d_to_250$price)
+d_more_equal_15000 <- subset(diamonds, price >= 15000)
+length(d_more_equal_15000$price)
+```
+
+***
+### Finding peak in price
+```{r}
+qplot(x = price, data = diamonds, binwidth = 1) +
+  #scale_x_continuous(limits = c(500, 600), breaks = seq(500, 600, 5))
+  scale_x_continuous(limits = c(550, 650), breaks = seq(550,650, 5))
+```
+
+
+Note: Peak at 605 being the mode
+Using a function to calculate the mode (from tutorialspoint.com)
+```{r}
+# Create the function.
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Calculate the mode using the user function.
+result <- getmode(diamonds$price)
+print(result)
+```
+
+***
+### Break out by cut
+
+```{r}
+qplot(x = price, data = diamonds, binwidth = 100) +
+  scale_x_continuous(limits = c(300, 19000), breaks = seq(300,19000, 1000)) +
+  facet_wrap(~cut)
+
+```
+
+```{r}
+by(diamonds$price, diamonds$cut, summary)
+```
+
+
+***
+### Scales and Multiple Histograms (free y axis)
+
+
+```{r}
+qplot(x = price, data = diamonds, binwidth = 100) +
+  scale_x_continuous(limits = c(300, 19000), breaks = seq(300,19000, 1000)) +
+  facet_wrap(~cut, scales="free_y")
+```
+
+
+***
+### Histogram of price per carat and facet it by cut
+
+```{r}
+qplot(x = price/carat, data = diamonds, binwidth = 0.1) +
+  scale_x_log10() +
+  facet_wrap(~cut, scales="free_y")
+ggsave('priceHistogram.png')
+```
+
+***
+### Boxplots
+
+```{r}
+qplot(x = color, y = price, 
+      data = subset(diamonds), 
+      geom = 'boxplot') 
+```
+***
+### Calculating Quartiles
+
+```{r}
+IQR(subset(diamonds, color == "D")$price)
+mean(subset(diamonds, color == "D")$price)
+quantile(subset(diamonds, color == "D")$price)
+
+```
+
+```{r}
+IQR(subset(diamonds, color == 'J')$price)
+mean(subset(diamonds, color == 'J')$price)
+quantile(subset(diamonds, color == 'J')$price)
+```
+
+
+***
+### Price Per Carat Box Plots By Color
+
+```{r}
+qplot(x = color, y = price/carat, 
+      data = subset(diamonds), 
+      geom = 'boxplot') 
+```
+
+***
+### Carat Frequency Polygon
+```{r}
+qplot(x = carat, data = diamonds, binwidth = 0.01) +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 0.2)) +
+  scale_y_continuous(breaks = seq(0, 10000, 2000))
+
+```
+
+
+***
+### Gapminder Data
+
+```{r}
+marriage <- read.csv('indicator_age_marriage.csv', header = T, row.names = 1, check.names = F)
+#marriage <- read.csv('indicator_age_marriage.csv', header = T, check.names = F)
+```
+```{r}
+str(marriage)
+```
+```{r}
+names(marriage)
+```
+```{r}
+summary(marriage$`1616`)
+```
+
+
+```{r}
+qplot(x = marriage$"2005", data = marriage, binwidth = 1)
+```
+```{r}
+old <- marriage$`1616`
+qplot(x = old, data = marriage, binwidth = 0.1)
+```
+
+
+
+```{r}
+marriage
+```
+
+```{r}
+diamonds
+```
+

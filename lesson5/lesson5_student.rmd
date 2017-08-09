@@ -16,8 +16,74 @@ Notes:
 
 ```{r Third Qualitative Variable}
 ggplot(aes(x = gender, y = age),
-       data = subset(pf, !is.na(gender))) + geom_histogram()
+       data = subset(pf, !is.na(gender))) + geom_boxplot() +
+  #before:  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .1), linetype = 2, color= 'blue') 
+  #shape = 4 is an x
+  stat_summary(fun.y = mean, geom = 'point', shape = 4)
+
+#ADDING THE THIRD VARIABLE
+ggplot(aes(x = age, y = friend_count), 
+       #omitting those with non available gender
+       data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+  
 ```
+
+```{r Assigment with dplyr}
+# Write code to create a new data frame,
+# called 'pf.fc_by_age_gender', that contains
+# information on each age AND gender group.
+
+# The data frame should contain the following variables:
+
+#    mean_friend_count,
+#    median_friend_count,
+#    n (the number of users in each age and gender grouping)
+
+# Here is an example of the structure of your data frame. Your
+# data values will be different. Note that if you are grouping by
+# more than one variable, you will probably need to call the
+# ungroup() function. 
+
+#   age gender mean_friend_count median_friend_count    n
+# 1  13 female          247.2953                 150  207
+# 2  13   male          184.2342                  61  265
+# 3  14 female          329.1938                 245  834
+# 4  14   male          157.1204                  88 1201
+
+pf <- read.delim('pseudo_facebook.tsv')
+suppressMessages(library(dplyr))
+
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>% #instead of subsetting we use filters
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(as.numeric(friend_count)),
+            n = n()) %>%
+  ungroup() %>% #ungrouping doesn't change the data - it changes the container type, from a grouped_df to a dataframe. 
+  arrange (age, gender)
+
+class(pf.fc_by_age_gender)
+
+head(pf.fc_by_age_gender)
+
+# group_by creates a grouped_df. If you group by one variable and apply summarise, the result will be a df. But if you group by two variables the summarise operation won´t change it back to dataframe, you have to ungroup it if you want.
+```
+
+Remember:
+Important Notice! Please note that in newer versions of dplyr (0.3.x+), the syntax %.% has been deprecated and replaced with %>%. Videos in the course use %.%, which will produce warning messages. If you answer using the chain operator, you should use %>% instead.
+
+Another warning: Version 0.4.0 of dplyr has a bug when using the median function on the summarize layer, depending on the nature of the data being summarized. You may need to cast the data as a numeric (float) type to get the expected results, e.g. median(as.numeric(var)).
+
+You can include multiple variables to split the data frame when using group_by() function in the dplyr package.
+
+new_groupings <- group_by(data, variable1, variable2)
+
+OR 
+using chained commands...
+
+new_data_frame <- data_frame %>%
+  group_by(variable1, variable2) %>%
 
 ***
 
@@ -25,13 +91,15 @@ ggplot(aes(x = gender, y = age),
 Notes:
 
 ```{r Plotting Conditional Summaries}
-
+ggplot(aes(x = age, y = median_friend_count),
+       data = subset(pf.fc_by_age_gender, !is.na(gender))) +
+  geom_line(aes(color = gender))
 ```
 
 ***
 
 ### Thinking in Ratios
-Notes:
+Notes: The question would be how many times more friends does the average female user have than the male user.
 
 ***
 
@@ -44,9 +112,34 @@ Notes:
 Notes:
 
 ```{r}
+#reshape is mor complex than tidyr
 install.packages('reshape2')
 library(reshape2)
+
+#dcast because we want a datafram, acast would be for arrays and so on
+
+pf.fc_by_age_gender.wide <- dcast(pf.fc_by_age_gender,
+                                  age ~ gender,
+                                  value.var = 'median_friend_count')
+head(pf.fc_by_age_gender.wide)
 ```
+
+```{r}
+install.packages('dplyr')
+library(dplyr)
+install.packages('tidyr')
+library(tidyr)
+
+
+pf.fc_by_age_gender.wide <-
+  subset(pf.fc_by_age_gender[c('age', 'gender', 'median_friend_count')],
+         !is.na(gender)) %>%
+  spread(gender, median_friend_count) %>%
+  mutate(ratio = male / female)
+
+head(pf.fc_by_age_gender.wide)
+```
+
 
 
 ***
