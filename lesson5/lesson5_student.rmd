@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 Lesson 5
 ========================================================
 
@@ -15,6 +20,8 @@ Notes:
 Notes:
 
 ```{r Third Qualitative Variable}
+library(ggplot2)
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
 ggplot(aes(x = gender, y = age),
        data = subset(pf, !is.na(gender))) + geom_boxplot() +
   #before:  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .1), linetype = 2, color= 'blue') 
@@ -27,6 +34,10 @@ ggplot(aes(x = age, y = friend_count),
        data = subset(pf, !is.na(gender))) +
   geom_line(aes(color = gender), stat = 'summary', fun.y = median)
   
+#ggplot(aes(x = age, y = median_friend_count),
+#       data = subset(pf.fc_by_age_gender, !is.na(gender))) +
+#  geom_line(aes(color = gender))
+
 ```
 
 ```{r Assigment with dplyr}
@@ -109,11 +120,12 @@ Notes:
 ***
 
 ### Reshaping Data
-Notes:
+Notes:Reshape or tydir for reshaping
+Nill function to convert back from wide to long.
 
 ```{r}
 #reshape is mor complex than tidyr
-install.packages('reshape2')
+#install.packages('reshape2')
 library(reshape2)
 
 #dcast because we want a datafram, acast would be for arrays and so on
@@ -125,9 +137,9 @@ head(pf.fc_by_age_gender.wide)
 ```
 
 ```{r}
-install.packages('dplyr')
+#install.packages('dplyr')
 library(dplyr)
-install.packages('tidyr')
+#install.packages('tidyr')
 library(tidyr)
 
 
@@ -148,25 +160,71 @@ head(pf.fc_by_age_gender.wide)
 Notes:
 
 ```{r Ratio Plot}
+# Plot the ratio of the female to male median
+# friend counts using the data frame
+# pf.fc_by_age_gender.wide.
 
+# Think about what geom you should use.
+# Add a horizontal line to the plot with
+# a y intercept of 1, which will be the
+# base line. Look up the documentation
+# for geom_hline to do that. Use the parameter
+# linetype in geom_hline to make the
+# line dashed.
+
+# The linetype parameter can take the values 0-6:
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+library(ggplot2)
+
+ggplot(aes(x = age, y = female/male), data = pf.fc_by_age_gender.wide) +
+  geom_line() +
+  geom_hline(yintercept = 1, alpha = 0.3, linetype = 2)
 ```
 
 ***
 
 ### Third Quantitative Variable
-Notes:
+Notes: Four variables: friend_count, age, gender, tenure (how many days since sign up for facebook)
 
 ```{r Third Quantitative Variable}
+# Create a variable called year_joined
+# in the pf data frame using the variable
+# tenure and 2014 as the reference year.
+
+# The variable year joined should contain the year
+# that a user joined facebook.
+pf$year_joined <- floor(2014 - (pf$tenure/365))
+summary(pf$year_joined)
+table(pf$year_joined)
 
 ```
-
+Cut function is useful to create discreet variables from continuous or numerical ones.Sometimes in combination with function quartile.
 ***
 
 ### Cut a Variable
 Notes:
 
 ```{r Cut a Variable}
+# Create a new variable in the data frame
+# called year_joined.bucket by using
+# the cut function on the variable year_joined.
 
+# You need to create the following buckets for the
+# new variable, year_joined.bucket
+
+#        (2004, 2009]
+#        (2009, 2011]
+#        (2011, 2012]
+#        (2012, 2014]
+
+# Note that a parenthesis means exclude the year and a
+# bracket means include the year.
+
+pf$year_joined.bucket <- cut(pf$year_joined,
+                             c(2004, 2009, 2011, 2012, 2014))
+table(pf$year_joined.bucket, useNA = 'ifany')
 ```
 
 ***
@@ -175,16 +233,48 @@ Notes:
 Notes:
 
 ```{r Plotting it All Together}
+#before we used
+#ggplot(aes(x = age, y = friend_count),
+#       data = subset(pf, !is.na(gender))) +
+#  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
 
+# Create a line graph of friend_count vs. age
+# so that each year_joined.bucket is a line
+# tracking the median user friend_count across
+# age. This means you should have four different
+# lines on your plot.
+
+# You should subset the data to exclude the users
+# whose year_joined.bucket is NA.
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat ='summary', fun.y = median)
 ```
 
 ***
 
 ### Plot the Grand Mean
-Notes:
+Notes: Grand Mean is average friend count across the ages.
 
 ```{r Plot the Grand Mean}
+# Write code to do the following:
 
+# (1) Add another geom_line to code below
+# to plot the grand mean of the friend count vs age.
+
+# (2) Exclude any users whose year_joined.bucket is NA.
+
+# (3) Use a different line type for the grand mean.
+
+# As a reminder, the parameter linetype can take the values 0-6:
+
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(year_joined.bucket))) +
+  geom_line(aes(color = year_joined.bucket), stat ='summary', fun.y = mean) +
+  geom_line(linetype = 2, stat = 'summary', fun.y = mean)
 ```
 
 ***
@@ -193,7 +283,7 @@ Notes:
 Notes:
 
 ```{r Friending Rate}
-
+with(subset(pf, tenure >= 1), summary(friend_count/tenure))
 ```
 
 ***
@@ -201,18 +291,33 @@ Notes:
 ### Friendships Initiated
 Notes:
 
-What is the median friend rate?
+What is the median friend rate? 0.2205
 
-What is the maximum friend rate?
+What is the maximum friend rate? 417 it is an outlier taking into account the 3rd Qu value
 
 ```{r Friendships Initiated}
+# Create a line graph of mean of friendships_initiated per day (of tenure)
+# vs. tenure colored by year_joined.bucket.
 
+# You need to make use of the variables tenure,
+# friendships_initiated, and year_joined.bucket.
+
+# You also need to subset the data to only consider user with at least
+# one day of tenure.
+ggplot(aes(x = tenure, y = friendships_initiated/tenure), 
+       data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', func.y = mean)
 ```
+
+
 
 ***
 
 ### Bias-Variance Tradeoff Revisited
-Notes:
+Notes: To reduce the noise from previous graph:
+x = 7 * round(tenure / 7)  instead of tenure binning values by the denominator in the round function and then transforming back to the natural scale with the constant in front. WE ARE MAKING THE X VALUES BETWEEN 0 AND 7 TO DISAPPEAR, SO WE ARE PAINTING ONE VALUE OUT OF 7. Is this a MOVING AVERAGE? Well, since we are calculating the mean of all the friendships_initiated in the 7th day, we are not doing the mean of a series of values, I don't think this is a moving average.
+
+When we take one value out of 7 and then one out of 30, we are reducing the variance (hence the variance noise) but we are including the bias (sesgo) (hence the bias noise). We need a balance.
 
 ```{r Bias-Variance Tradeoff Revisited}
 
@@ -242,22 +347,49 @@ ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
 
 ```
 
+
+Using geom_smooth for smoothing the noise.
+```{r}
+# Instead of geom_line(), use geom_smooth() to add a smoother to the plot.
+# You can use the defaults for geom_smooth() but do color the line
+# by year_joined.bucket
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_smooth(aes(color = year_joined.bucket))
+```
+NOTE:Review [Understanding the Bias-Variance Tradeoff](http://scott.fortmann-roe.com/docs/BiasVariance.html)
+
 ***
 
 ### Sean's NFL Fan Sentiment Study
 Notes:
+He calculates the ratios of positive over negative words, first at five minute increments over the course of 4 months.
+Then calculates the moving average for one hour,for one day and finally for 7 days.
+Combines smoothing with splines with the moving average over 7 days to find what he wanted to show. Splines is an interpolation technique, while the moving average is dropping values, extrapoling.
+The longest the period, the smallest the variance but the biggest the bias. A balance is necessary.
+
 
 ***
 
 ### Introducing the Yogurt Data Set
-Notes:
+Notes: 5 flavors of dannon yougurt. It is micro data since we have a line in the dataset for each of the purchases.
+```{r}
+yo <- read.csv('yogurt.csv')
+str(yo)
+# change the id from an int to a factor
+yo$id <- factor(yo$id)
+str(yo)
 
+```
 ***
 
 ### Histograms Revisited
-Notes:
+Notes: There is discreteness in the distribution, prices with many observations and no observations in other prices.
 
 ```{r Histograms Revisited}
+qplot(x = price, data = yo, fill = I("#F79420")) 
+qplot(x = price, data = yo, fill = I("#F79420"), binwidth = 10) 
+# with a binwidth of 10 we miss the observation for the adjacent prices, second histogram is a very biased model.
 
 ```
 
@@ -267,6 +399,28 @@ Notes:
 Notes:
 
 ```{r Number of Purchases}
+# we could miss information if we choose the wrong binwidth, one clue to its discreteness is that 75th percentile is the same as the maximum (prices)
+summary(yo)
+
+#also by seeing how many distince prices are in the dataset, only 20
+length(unique(yo$price))
+
+#tabling it we can see the distribution as we've seen in the histogram
+table(yo$price)
+```
+```{r}
+# Create a new variable called all.purchases,
+# which gives the total counts of yogurt for
+# each observation or household.
+
+# One way to do this is using the transform
+# function. It takes in a data frame an allows us to add different variables to it by recombining variables that already within the dataframe
+
+yo <- transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
+summary(yo$all.purchases)
+
+# alternate verbose form
+yo$all.purchases <- yo$strawberry + yo$blueberry + yo$pina.colada + yo$plain + yo$mixed.berry
 
 ```
 
@@ -276,20 +430,48 @@ Notes:
 Notes:
 
 ```{r Prices over Time}
+qplot(x = all.purchases, data = yo, binwidth = 1, fill = I('#099009'))
 
+ggplot(aes(x = time, y = price), data = yo) +
+  #geom_point()
+  # geom_jitter to add transparency
+  geom_jitter(alpha = 1/4, shape = 21, fill = I('#F79420'))
+
+
+# Shape takes four types of values: an integer in [0, 25],
+# a single character-- which uses that character as the plotting symbol,
+# a . to draw the smallest rectangle that is visible (i.e., about one pixel)
+# an NA to draw nothing
 ```
 
 ***
 
 ### Sampling Observations
-Notes:
+Notes: When we have a dataset with multiple observations, it can be easier to work with a sample to study it.
 
 ***
 
 ### Looking at Samples of Households
+x %in% y returns a logical (boolean) vector the same length as x that says whether each entry in x appears in y. That is, for each entry in x, it checks to see whether it is in y. This allows us to subset the data so we get all the purchases occasions for the households in the sample. Then, we create scatterplots of price vs. time and facet by the sample id. 
+
+
+Use the pch or shape parameter to specify the symbol when plotting points. Scroll down to 'Plotting Points' on (QuickR's Graphical Parameters)[http://www.statmethods.net/advgraphs/parameters.html].
 
 ```{r Looking at Sample of Households}
+# set the seed for reproducible results, if you use the same seed number you will get always the same households
+set.seed(4230)
+# gettin a sample of 16 households, we are sampling from levels (of factors) because those are all the different housholds that I have
+sample.ids <- sample(levels(yo$id), 16)
 
+# lets draw it
+ggplot(aes(x = time, y = price),
+       data = subset(yo, id %in% sample.ids)) +
+  # to paint one graph per id
+  facet_wrap(~ id) +
+  geom_line() +
+  # size of the point depending on the number of purchases
+  # pch is shape and fill
+  geom_point(aes(size = all.purchases), pch = 1)
 ```
 
 ***
@@ -301,35 +483,74 @@ Notes:
 
 ### Many Variables
 Notes:
+We should let the data speak to determine variables of interest. There´s a tool we can use to create a number of scatter plots automatically: a scatterplot matrix. In a scatterplot matrix there is a grid of scatter plots between any par of variables. Scatter plots are great but not necessarily suitable for any kind of variables like categorical ones.In these cases box plots or histograms which are better.
 
 ***
 
-### Scatterplot Matrix
-Notes:
+### Scatterplot Matrices
+Notes: We use the GGally to create scatterplot matrices
+```{r}
+#install.packages('GGally')
+library(GGally)
+theme_set(theme_minimal(20))
 
+#set the seed for reproducible results, we are not using categorical variables
+set.seed(1836)
+#pf_subset <- pf[, c(2:15)] see notes below
+pf_subset = pf[, c('age', 'dob_year', 'dob_month', 'gender', 'tenure')]
+names(pf_subset)
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000),])
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000),], axisLabels = 'internal')
+```
+If the code takes a while:
+You can use the following code or select fewer variables. We recommend including gender (the 6th variable)!
+
+pf_subset = pf[, c('age', 'dob_year', 'dob_month', 'gender', 'tenure')]
+
+You can also select a subset using the subset() function and the "select" argument:
+
+pf_subset <- subset(pf, select = -c(userid, year_joined, year_joined_bucket))
+
+The - sign in the "select" value indicates all but the listed columns.
+
+You may find in your matrix that variable labels are on the outer edges of the scatterplot matrix, rather than on the diagonal. If you want labels in the diagonal, you can set the axisLabels = 'internal' argument in your ggpairs command.
+
+Scatterplot matrices uses depending on the variables: histograms, boxplots, satterplots. They are not fine tuned but it is really helpful to observe relationships between them.
 ***
 
 ### Even More Variables
-Notes:
+Notes: A matrix like this is really usefull when we have even more variables, like genomic data.For a small number of samples there are thousands of variables.
 
 ***
 
 ### Heat Maps
-Notes:
+Notes: Using genomic data.
 
 ```{r}
 nci <- read.table("nci.tsv")
+# change the colnames to produce a nicer plot
 colnames(nci) <- c(1:64)
 ```
 
+We want to see for each combination of gene and sample, the difference in gene expression and the sample from the base line. Comginations where a gene is over expressed in red and underexpressed in blue.
+
+Using (melt)[https://www.r-bloggers.com/melt/] function to change from wide to long format.
+
 ```{r}
+library(reshape2)
+
+# melt data to long format
+# The melt function takes data in wide format and stacks a set of columns into a single column of data. To make use of the function we need to specify a data frame, the id variables (which will be left at their settings) and the measured variables (columns of data) to be stacked. The default assumption on measured variables is that it is all columns that are not specified as id variables.
+
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)
 
+# make the heatmap
 ggplot(aes(y = gene, x = case, fill = value),
   data = nci.long.samp) +
   geom_tile() +
+  # give us a scale gradient
   scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
 ```
 
