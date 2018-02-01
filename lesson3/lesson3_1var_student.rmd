@@ -1,4 +1,4 @@
-Lesson 3
+Lesson 3 - explore 1 variable
 ========================================================
 
 ***
@@ -15,7 +15,7 @@ Notes:
 getwd()
 list.files()
 pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
-# read.delim('pseudo_facebook.tsv') unction defaults to the tab character as the separator between values and the period as the decimal character.
+# read.delim('pseudo_facebook.tsv') function defaults to the tab character as the separator between values and the period as the decimal character.
 
 ```
 
@@ -25,7 +25,7 @@ pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
 Notes:
 
 ```{r Histogram of Users\' Birthdays}
-#install.packages('ggplot2', dependencies = TRUE)
+install.packages('ggplot2', dependencies = TRUE)
 library(ggplot2)
 ```
 ```{r}
