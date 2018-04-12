@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 Lesson 5
 ========================================================
@@ -17,7 +17,7 @@ Notes:
 ***
 
 ### Third Qualitative Variable
-Notes:
+Notes: We add gender variable
 
 ```{r Third Qualitative Variable}
 library(ggplot2)
@@ -28,7 +28,6 @@ ggplot(aes(x = gender, y = age),
   #shape = 4 is an x
   stat_summary(fun.y = mean, geom = 'point', shape = 4)
 
-#ADDING THE THIRD VARIABLE
 ggplot(aes(x = age, y = friend_count), 
        #omitting those with non available gender
        data = subset(pf, !is.na(gender))) +
@@ -102,6 +101,7 @@ new_data_frame <- data_frame %>%
 Notes:
 
 ```{r Plotting Conditional Summaries}
+# Now we are obtaining the same graph than before using the new fc_by_age_gender grouping
 ggplot(aes(x = age, y = median_friend_count),
        data = subset(pf.fc_by_age_gender, !is.na(gender))) +
   geom_line(aes(color = gender))
@@ -115,20 +115,34 @@ Notes: The question would be how many times more friends does the average female
 ***
 
 ### Wide and Long Format
-Notes:
+Notes: To answer the previous question we need to rearrange the data a little bit. Rigth now we have long format (many rows and variables age and gender are repeated)
+LONG FORMAT
+age   gender    mean_friend_count  median_friend_count  n
+13  	female  	259.1606	         148.0	              193
+13    male	    102.1340	         55.0	                291
+14   	female	  362.4286	         224.0	              847
+14  	male	    164.1456	         92.5	                1078
 
+WIDE FORMAT for mean_friend_count
+age    male      female
+13     102.1340  259.1606
+14     164.1456  362.4286
+
+to make this rearrangements we will be using the Reshape2 package
 ***
 
 ### Reshaping Data
 Notes:Reshape or tydir for reshaping
-Nill function to convert back from wide to long.
 
 ```{r}
 #reshape is mor complex than tidyr
 #install.packages('reshape2')
 library(reshape2)
 
-#dcast because we want a datafram, acast would be for arrays and so on
+# we are creating a new variable named fc_by_age_gender.wide
+# we use dcast (from reshape2) because we want a datafram, acast would be for arrays and so on -> long to wide
+# Nill function to convert back from wide to long.
+# age ~ gender, on the left the var I want to keep, on the left the one that is going to be extended into two columns
 
 pf.fc_by_age_gender.wide <- dcast(pf.fc_by_age_gender,
                                   age ~ gender,
@@ -136,6 +150,18 @@ pf.fc_by_age_gender.wide <- dcast(pf.fc_by_age_gender,
 head(pf.fc_by_age_gender.wide)
 ```
 
+```{r}
+head(pf)
+# pf.fc_by_age_gender is just the name of the variable we are creating
+head(pf.fc_by_age_gender)
+head(pf.fc_by_age_gender.wide)
+class(pf)
+class(pf.fc_by_age_gender)
+class(pf.fc_by_age_gender.wide)
+
+```
+
+We can create similar data frame using the dplyr and tidyr packages:
 ```{r}
 #install.packages('dplyr')
 library(dplyr)
@@ -372,7 +398,7 @@ The longest the period, the smallest the variance but the biggest the bias. A ba
 ***
 
 ### Introducing the Yogurt Data Set
-Notes: 5 flavors of dannon yougurt. It is micro data since we have a line in the dataset for each of the purchases.
+Notes: 5 flavors of dannon yogurt. It is micro data since we have a line in the dataset for each of the purchases.
 ```{r}
 yo <- read.csv('yogurt.csv')
 str(yo)
@@ -402,7 +428,7 @@ Notes:
 # we could miss information if we choose the wrong binwidth, one clue to its discreteness is that 75th percentile is the same as the maximum (prices)
 summary(yo)
 
-#also by seeing how many distince prices are in the dataset, only 20
+#also by seeing how many distinc prices are in the dataset, only 20
 length(unique(yo$price))
 
 #tabling it we can see the distribution as we've seen in the histogram
@@ -460,7 +486,7 @@ Use the pch or shape parameter to specify the symbol when plotting points. Scrol
 ```{r Looking at Sample of Households}
 # set the seed for reproducible results, if you use the same seed number you will get always the same households
 set.seed(4230)
-# gettin a sample of 16 households, we are sampling from levels (of factors) because those are all the different housholds that I have
+# getting a sample of 16 households, we are sampling from levels (of factors) because those are all the different housholds that I have
 sample.ids <- sample(levels(yo$id), 16)
 
 # lets draw it
@@ -483,7 +509,7 @@ Notes:
 
 ### Many Variables
 Notes:
-We should let the data speak to determine variables of interest. There´s a tool we can use to create a number of scatter plots automatically: a scatterplot matrix. In a scatterplot matrix there is a grid of scatter plots between any par of variables. Scatter plots are great but not necessarily suitable for any kind of variables like categorical ones.In these cases box plots or histograms which are better.
+We should let the data speak to determine variables of interest. There´s a tool we can use to create a number of scatter plots automatically: a scatterplot matrix. In a scatterplot matrix there is a grid of scatter plots between any par of variables. Scatter plots are great but not necessarily suitable for any kind of variables like categorical ones.In these cases box plots or histograms are better.
 
 ***
 
@@ -529,10 +555,14 @@ Notes: Using genomic data.
 ```{r}
 nci <- read.table("nci.tsv")
 # change the colnames to produce a nicer plot
-colnames(nci) <- c(1:64)
+colnames(nci)
+#colnames(nci) <- c(1:64)
+str(nci)
+
+# we can see nci is in wide format
 ```
 
-We want to see for each combination of gene and sample, the difference in gene expression and the sample from the base line. Comginations where a gene is over expressed in red and underexpressed in blue.
+We want to see for each combination of gene and sample, the difference in gene expression and the sample from the base line. Combinations where a gene is over expressed in red and underexpressed in blue.
 
 Using (melt)[https://www.r-bloggers.com/melt/] function to change from wide to long format.
 
@@ -543,9 +573,12 @@ library(reshape2)
 # The melt function takes data in wide format and stacks a set of columns into a single column of data. To make use of the function we need to specify a data frame, the id variables (which will be left at their settings) and the measured variables (columns of data) to be stacked. The default assumption on measured variables is that it is all columns that are not specified as id variables.
 
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
-names(nci.long.samp) <- c("gene", "case", "value")
+names(nci.long.samp) <- c("case", "gene", "value")
 head(nci.long.samp)
 
+# we obtain a long format
+```
+```{r}
 # make the heatmap
 ggplot(aes(y = gene, x = case, fill = value),
   data = nci.long.samp) +
