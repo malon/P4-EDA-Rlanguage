@@ -213,10 +213,10 @@ Response: Most users have less than 1000 friends
 COORD CARTESIAN LAYER:
 
 ```{r ZOOMING IN - Overlaying Summaries with Raw Data - adding Coord_cartesian}
-# To zoom in, the code should use the coord_cartesian(xlim = c(13, 90)) layer rather than xlim(13, 90) layer. Setting limits on the coordinate system will zoom the plot (like you're looking at it with a magnifying glass), and will not change the underlying data like setting limits on a scale will.
+# To zoom in, the code should use the coord_cartesian(xlim = c(13, 90)) layer rather than xlim(13, 90) layer. Setting limits on the coordinate system will zoom the plot (like you're looking at it with a magnifying glass), and will not change the underlying data like setting limits on a scale will. See difference with next plot, the summaries vary if we limit the scale.
 
 ggplot(aes(x = age, y = friend_count), data = pf) + 
-  #xlim(13,90) +
+  #xlim(13,70),  ylim = c(0, 1000)) +
   coord_cartesian(xlim = c(13, 70), ylim = c(0, 1000)) +
   geom_point(alpha = 0.05, 
              position = position_jitter(height = 0),
@@ -234,6 +234,25 @@ ggplot(aes(x = age, y = friend_count), data = pf) +
 ```
 
 
+```{r}
+ggplot(aes(x = age, y = friend_count), data = pf) + 
+  xlim(13,70) +  ylim(0,1000) +
+  #coord_cartesian(xlim = c(13, 70), ylim = c(0, 1000)) +
+  geom_point(alpha = 0.05, 
+             position = position_jitter(height = 0),
+             color = 'orange') +
+  # coord_trans(y = 'sqrt') +
+  geom_line(stat = 'summary', fun.y = mean) +
+  #before ggplot 2.0.0 geom_line(stat = 'summary', fun.y = quantile, probs = .1,
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .1),
+            linetype = 2, color= 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .9),
+            linetype = 2, color= 'red') +
+  # median
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = .5),
+            linetype = 1, color= 'green')
+```
+```
 
 
 ### Moira: Histogram Summary and Scatterplot
