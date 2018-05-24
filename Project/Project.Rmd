@@ -16,7 +16,7 @@ library(RColorBrewer)
 theme_set(theme_grey(10))
 ```
 
-## Univariate Plots Section
+# Univariate Plots Section
 
 Let´s have a look at the number of variables of our data and its distribution. 
 We can see below the structure and summary of variables in our dataset. 
@@ -309,11 +309,11 @@ qplot(x = density, data = wdata, binwidth = 0.0001) +
 
 The distribution without the three outliers is quite normal, could be those outliers measure errors? Given that variations in density is of hundredths of gram per cm3, those could be real values.
 
-##Univariate Analysis
+# Univariate Analysis
 
 ###What is the structure of your dataset?
 
-* There are 4898 observations of white wines and 12 features:
+There are 4898 observations of white wines and 12 features:
 - tartaric acid (fixed.acidity) 
 - acetic acid (volatile.acidity)
 - citric acid (citric.acid)     
@@ -357,7 +357,7 @@ Regarding alcohol, most of the values are either intengers or have one decimal d
 The citric acid distribution shows an unexpected peak at 0.49 gr/l and a second grade peak at 0.74 gr/l.
 
 
-## Bivariate Plots Section
+# Bivariate Plots Section
 
 First, let´s see the correlation matrix. We need to get rid of the index (without any information) and all the qualitative variables.
 
@@ -615,7 +615,7 @@ qplot(x = quality, data = wdata, binwidth = 1) +
 
 Having a correlation coefficient of 0.01, free SO2 and quality are not really correlated, although the previous plot show that for really high values of free SO2, the quality seems to be lower.
 
-## Bivariate Analysis
+# Bivariate Analysis
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 
 We can´t see any high correlated variables to quality, the strongest correlation of quality is with alcohol, but it is a weak correlation (0.44 - the highest the level of alcohol the slightly better quality score the wine has), but only 18% of the variance in quality is explained by alcohol.
@@ -634,7 +634,7 @@ Both forms of SO2 (free and total) are positively correlated (0.62) which was ex
 ### What was the strongest relationship you found?
 The strongest correlation in the dataset is found between density and residual sugar (correlation coefficient of 0.84), 70% of the variance in density is explained by the residual sugar.
 
-## Multivariate Plots Section
+# Multivariate Plots Section
 
 ```{r}
 theme_set(theme_dark())
@@ -910,7 +910,7 @@ mtable(m1, m2, m3, m4, sdigits = 3)
 
 We can see (according to the R^2 value) that most of the variance in density can be explained by the residual sugar (70% of the density variance). But if we add the alcohol and total SO2 we account for the 91% of the variance. Quality is not a measure variable, but a variable based on sensory data, but if we added to the model, we can explain 92% of the density variance.
  
-## Multivariate Analysis
+# Multivariate Analysis
 ###Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
 We have found more evidence drawing the values that quality is weakly negatively correlated with density (-0.31), the the lower the density wines tend to have higher perceived quality, except for those wines with a residual sugar around 15, in that case, high quality wines seem to allow higher densities. We´ve also found that quality is not really correlated with residual sugar (-0.1) and that quality and alcohol seem to be weakly correlated (0.44), for higher alcohol levels, quality seems to be a little bit better. Combining more variables we have seen that in our dataset, for drier wines, the better quality is found at higher levels of alcohol, but for sweeter wines, low levels of alcohol seem to be a better combination for perceived quality. 
@@ -932,7 +932,7 @@ We have deeply study the "sweet-dense outliers", and specially the highest of th
 Yes, I created a linear model for the density of the wine. One of the variables included (residual.sugar) accounts for the 70% of the density variance, but the model gets a little better if we add alcohol and total SO2, all of them combined account for the 91% of the density variance. We could include also the quality, although it is a perceived (sensory) variable. In this case we could account for the 92% of the variance in density.
 
 
-## FINAL PLOTS SUMMARY
+# FINAL PLOTS SUMMARY
 ### Plot One
 
 ```{r}
@@ -989,7 +989,7 @@ ggplot(aes(x = alcohol, y = residual.sugar, color = factor(quality)),
 ### Description Three
 We can see that the cloud of points are slightly darker to the right of the graph and also at an area around 9% of alcohol and 15 g/dm3 of residual sugar. Therefore we can say that in our data, for drier wines, the better quality is found at higher levels of alcohol, but for sweeter wines, low levels of alcohol seem to be a better combination for perceived quality. 
 
-## Reflection
+# Reflection
 We have a dataset of 4898 observations of portuguese white vinho verde. The dataset is quite unbalanced given the fact that it contains mostly medium quality wines, furthermore it contains several duplicates that we couldn´t discard since we couldn´t prove they were dataset errors. All of the variables but the quality are measured, being the quality sensorial. There are also several outliers, like a few sweeter wines, that we studied also separately searching for relations with other variables.
 
 We have tried to study what makes a wine better or worse, comparing the quality of the wine with the rest of the variables, but only the alcohol seemed to have a relation with quality (not very strong though, a correlation index of 0.44). We could also study how some combined variables, like alcohol and residual sugar, affected the perceived quality.
@@ -1000,7 +1000,7 @@ We did find strong relations between other variables, like residual sugar and de
 Future work with this dataset could imply searching for more data to increase the number of data entries and reduce its unbalance to have more reliable results. Also, contacting the authors of the dataset to ask about the existence of duplicates and outliers, to reassure the reliability of the data would be a good idea.
 
 
-## References
+# References
 * http://www.endmemo.com/sconvert/g_lppm.php
 * http://waterhouse.ucdavis.edu/whats-in-wine/volatile-acidity
 * http://winefolly.com/tutorial/alcohol-content-in-wine/
