@@ -58,8 +58,7 @@ Well, the quality value seems consistent. Without more information about the dat
 The first variable we are curious about is the quality, we take a look at it in a histogram.
 
 ```{r}
-qplot(x = quality, data = wdata)+
-   scale_x_continuous(limits = c(3, 9), breaks = seq(3, 9, 1))
+qplot(x = factor(quality), data = wdata, geom = "bar")
 ```
 
 As described in the dataset documentation, it is quite unbalanced, with most of the wines scoring at 6, with just a few poor and really high quality wines and no wines with a quality lower than 3 or higher than 9.
@@ -129,7 +128,7 @@ wdata$sweet_level <- cut(wdata$residual.sugar,
 Here we have the distribution of this new variable.
 
 ```{r}
-qplot(x = sweet_level, data = wdata)
+qplot(x = sweet_level, data = wdata, geom = "bar")
 ```
 
 ```{r}
@@ -218,7 +217,7 @@ We also create a qualitative column out of the ph values, considering more acidi
 wdata$ph_level <- cut(wdata$pH,
                        c(2.71,  3.09, 3.28, 3.82),
                        labels = (c("more acidic","medium","more basic")))
-qplot(x = ph_level, data = wdata)
+qplot(x = ph_level, data = wdata, geom = "bar")
 table(wdata$ph_level)
 
 ```
@@ -272,7 +271,7 @@ wdata$alc_level <- cut(wdata$alcohol,
                        labels = (c("low","medium low","medium", "medium high", 
                                    "high")))
 
-qplot(x = alc_level, data = wdata) 
+qplot(x = alc_level, data = wdata, geom = "bar") 
 
 ```
 
@@ -394,14 +393,14 @@ The highest correlation are:
 
 ```{r}
 ggplot(aes(x = alcohol, y = quality), data = wdata) +  
-  geom_point(alpha = 0.1, size = 1, position = 'jitter')
+  geom_point(alpha = 0.3, position = 'jitter')
 # using jitter and alpha to avoid missing information due to overlapping
 ```
 
 As expected, we cannot see a strong correlation here, but we can see the weak positive correlation. Let´s use the alc_level column to further study this relationship.
 
 ```{r}
-qplot(x = quality, data = wdata, binwidth = 1) +
+qplot(x = factor(quality), data = wdata, geom = "bar") +
   facet_wrap(~alc_level) +
   ggtitle('Quality distribution for alcohol levels')
 qplot(y = quality, x = alc_level, data = wdata, geom = 'boxplot')
@@ -420,7 +419,7 @@ Only the 19 percent of the variance in quality is due to changes in the alcohol 
 
 ```{r}
 ggplot(aes(x = residual.sugar, y = quality), data = wdata) +
-  geom_point(alpha = 0.5, size = 1, position = 'jitter')
+  geom_point(alpha = 0.3, position = 'jitter')
 
 ```
 
@@ -435,7 +434,7 @@ by(wdata$quality, wdata$sweet_level, summary)
 
 We cannot really say much about the quality based on the sweetness of the wine. 
 ```{r}
-qplot(x = quality, data = wdata, binwidth = 1) +
+qplot(x = factor(quality), data = wdata, geom = "bar") +
   facet_wrap(~sweet_level) +
   ggtitle("Quality distribution for sweetness level")
 ```
@@ -444,7 +443,7 @@ qplot(x = quality, data = wdata, binwidth = 1) +
 
 ```{r}
 ggplot(aes(x = density, y = residual.sugar), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter')
+  geom_point(alpha = 0.3, position = 'jitter')
 ```
 
 We can see the lineal correlation between these two variables, that is also true for the ouliers. Having those samples with high residual sugar and also high density makes us think that they are not outliers but real values of sweeter wines.
@@ -453,7 +452,7 @@ Let´s zoom in a little bit so we can see the line better.
 
 ```{r}
 ggplot(aes(x = density, y = residual.sugar), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   xlim(0.985,1.005) + ylim(0,25)
 ```
 
@@ -473,13 +472,13 @@ As per R^2, 70% of the variance in density can be explained by the values of res
 
 ```{r}
 ggplot(aes(x = density, y = alcohol), data = wdata) + 
-  geom_point(col=ifelse(wdata$density>1.01, "red", "black"), alpha = 0.5, 
-             size = 1, position = 'jitter') 
+  geom_point(col=ifelse(wdata$density>1.01, "red", "black"), alpha = 0.3,
+             position = 'jitter') 
 ```
 
 ```{r}
 ggplot(aes(x = density, y = alcohol), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') + 
+  geom_point(alpha = 0.3, position = 'jitter') + 
   xlim(0.985,1.005) 
 ```
 
@@ -501,8 +500,8 @@ Checking the values of these outliers regarding other variables, we can see that
 
 ```{r}
 ggplot(aes(x = density, y = volatile.acidity), data = wdata) + 
-  geom_point(col=ifelse(wdata$density>1.01, "red", "black"), alpha = 0.5, 
-             size = 1, position = 'jitter') 
+  geom_point(col=ifelse(wdata$density>1.01, "red", "black"), alpha = 0.3,
+             position = 'jitter') 
 ```
 
 ### Alcohol and sugar
@@ -510,13 +509,13 @@ ggplot(aes(x = density, y = volatile.acidity), data = wdata) +
 ```{r}
 ggplot(aes(x = residual.sugar, y = alcohol), data = wdata) + 
   geom_point(col=ifelse(wdata$residual.sugar>30, "red", "black"), 
-             alpha = 0.5, size = 1, position = 'jitter')
+             alpha = 0.3, position = 'jitter')
 
 ```
 
 ```{r}
 ggplot(aes(x = residual.sugar, y = alcohol), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') + 
+  geom_point(alpha = 0.3, position = 'jitter') + 
   xlim(0,25)
 ```
 
@@ -541,14 +540,14 @@ How are the different acids related and how related they are to quality?
 
 ```{r}
 ggplot(aes(x = volatile.acidity, y = fixed.acidity), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') 
+  geom_point(alpha = 0.3, position = 'jitter') 
 ```
 
 As expected, there is not correlation at all between the fixed and volatile acidity.
 
 ```{r}
 ggplot(aes(x = pH, y = fixed.acidity), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') 
+  geom_point(alpha = 0.3, position = 'jitter') 
 ```
 
 But pH and tartaric acid (fixed.acidity) are negatively slightly related.
@@ -557,7 +556,7 @@ Let´s zoom in:
 
 ```{r}
 ggplot(aes(x = pH, y = fixed.acidity), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   ylim(5, 10.5)
 ```
 
@@ -575,14 +574,14 @@ We can see here the summary of the quality for the whole data set and for these 
 
 ```{r}
 ggplot(aes(x = total.sulfur.dioxide, y = free.sulfur.dioxide), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter')
+  geom_point(alpha = 0.3, position = 'jitter')
 ```
 
 As expected these two variables are positve correlated, even for the ouliers with high free and total SO2. Let´s zoom in.
  
 ```{r}
 ggplot(aes(x = total.sulfur.dioxide, y = free.sulfur.dioxide), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   xlim(0, 350) + ylim(0, 150)
 ```
 
@@ -603,13 +602,12 @@ summary(subset(wdata, free.sulfur.dioxide > 50)$quality)
 It´s hard to say that having over 50ppm of free SO2 in wine affects the quality although the average score in this case is slightly lower than the score for wines with lower concentrations of free SO2. But knowing the correlation between them (0.01) we cannot say they are related at all. 
 
 ```{r}
-qplot(x = quality, y = free.sulfur.dioxide,  data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter')
- 
+ggplot(aes(x = quality, y = free.sulfur.dioxide), data = wdata) + 
+  geom_point(alpha = 0.3, position = 'jitter') 
 ```
 
 ```{r}
-qplot(x = quality, data = wdata, binwidth = 1) +
+qplot(x = factor(quality), data = wdata, geom = "bar") +
   facet_wrap(~free.sulfur.dioxide>50)
 ```
 
@@ -643,15 +641,14 @@ theme_set(theme_dark())
 ```{r}
 # we are adding jitter to better see the points, since quality has only integer values, most of them would be overlapping, we also add some transparency to better appreciate the volume of points.
 
-theme_set(theme_gray())
 ggplot(aes(x = density, y = quality, color = sweet_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1) +
   guides(colour = guide_legend(reverse = F, 
                                override.aes = list(alpha = 1, size = 2))) +
   ggtitle('Quality and Density per sweetness level')
 ggplot(aes(x = density, y = quality, color = sweet_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   xlim(0.985, 1.005) +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1) +
   guides(colour = guide_legend(reverse = F, 
@@ -662,9 +659,8 @@ ggplot(aes(x = density, y = quality, color = sweet_level), data = wdata) +
 We can see the stronger correlation between density and sweetness we´ve already talked about, but we can also see a weak negative correlation between quality and density in the plot.
 
 ```{r}
-theme_set(theme_gray())
 ggplot(aes(x = alcohol, y = quality, color = sweet_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1) +
   guides(colour = guide_legend(reverse = F, 
                                override.aes = list(alpha = 1, size = 2))) +
@@ -682,10 +678,9 @@ wdata[wdata$sweet_level == 'medium sweet',]
 It is around the 6 in quality (due to the jitter), and alcohol 11.7. If we filter out the graph getting rid of the dry wines:
 
 ```{r}
-theme_set(theme_gray())
 ggplot(aes(x = alcohol, y = quality, color = sweet_level), 
        data = subset(wdata, residual.sugar > 9))+ 
-  geom_point(alpha = 0.7, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1) +
   guides(colour = guide_legend(reverse = F, 
                                override.aes = list(alpha = 1, size = 2))) +
@@ -701,7 +696,7 @@ ggplot(aes(x = alcohol, y = residual.sugar, color = factor(quality)),
   guides(colour = guide_legend(reverse = T, 
                                
                                override.aes = list(alpha = 1, size = 1))) +
-  geom_point(alpha = 0.5, size = 1) +
+  geom_point(alpha = 0.3) +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1) 
 
 
@@ -712,7 +707,7 @@ ggplot(aes(x = alcohol, y = residual.sugar, color = factor(quality)),
        y = "Residual Sugar", color = "Quality\n") +
   guides(colour = guide_legend(reverse = T, 
                                override.aes = list(alpha = 1, size = 1))) +
-  geom_point(alpha = 0.5, size = 1) +
+  geom_point(alpha = 0.3) +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1)
 
 ```
@@ -721,7 +716,7 @@ We can see that the cloud of points are slightly darker to the right of the grap
 
 ```{r}
 ggplot(aes(y = density, x = residual.sugar, color = alc_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'Blues') +
   labs(title = "Sugar, Density & Alcohol", y = "Density", x = "Residual Sugar", 
        color = "Alcohol level\n") +
@@ -730,7 +725,7 @@ ggplot(aes(y = density, x = residual.sugar, color = alc_level), data = wdata) +
 
 
 ggplot(aes(y = density, x = residual.sugar, color = alc_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'Blues') +
   ylim(0.985,1.005) +  xlim(0,25) +
   labs(title = "Sugar, Density & Alcohol", y = "Density", x = "Residual Sugar", 
@@ -754,7 +749,7 @@ We´ll have a look to those outliers with plots:
 ```{r}
 ggplot(aes(y = density, x = residual.sugar, color = factor(quality)), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   labs(title = "Density, Sugar & Quality", y = "Density", x = "Residual Sugar", 
        color = "Quality\n") +
@@ -763,7 +758,7 @@ ggplot(aes(y = density, x = residual.sugar, color = factor(quality)),
 
 ggplot(aes(y = density, x = residual.sugar, color = factor(quality)), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   xlim(0, 22) + ylim(0.985, 1.005) +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   labs(title = "Density, Sugar & Quality", y = "Density", x = "Residual Sugar", 
@@ -779,7 +774,7 @@ Quality is six for the sweet outliers, as we can see. But we can also see, if we
 ```{r}
 ggplot(aes(y = citric.acid, x = residual.sugar, color = ph_level), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'Reds') +
  # ylim(0.985,1.005) +  xlim(0,25) +
   labs(title = "Citric acid, Sugar & pH level", y = "Citric Acid", 
@@ -793,7 +788,7 @@ The sweetest has a higher values of pH (more basic), and quite high values of ci
 ```{r}
 ggplot(aes(x = residual.sugar, y = volatile.acidity, color = sulf_level), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   #xlim(0.985,1.005) +  ylim(0,25) +
    labs(title = "Acetic acid, Sugar & Sulphates level", 
@@ -810,7 +805,7 @@ Let´s see now the relation between acidities and pH together.
 ```{r}
 ggplot(aes(x = volatile.acidity, y = fixed.acidity, color = ph_level), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   #xlim(0.985,1.005) +  ylim(0,25) +
   labs(title = "Acidities and pH level", y = "fixed.acidity", 
@@ -824,7 +819,7 @@ In this graph we can clearly see the positive relation between fixed acidity and
 ```{r}
 ggplot(aes(x = citric.acid, y = fixed.acidity, color = ph_level), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   #xlim(0.985,1.005) +  ylim(0,25) +
   labs(title = "Acidities and pH level", y = "fixed acidity (tartaric)", 
@@ -840,7 +835,7 @@ And now, let´s have a look to the sulphates and sulfurs:
 ```{r}
 ggplot(aes(x = free.sulfur.dioxide, y = total.sulfur.dioxide, 
            color = sulf_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   #xlim(0.985,1.005) +  ylim(0,25) +
   labs(title = "SO2 and sulphates", y = "total SO2", x = "free SO2", 
@@ -851,7 +846,7 @@ ggplot(aes(x = free.sulfur.dioxide, y = total.sulfur.dioxide,
   
 ggplot(aes(x = free.sulfur.dioxide, y = total.sulfur.dioxide, 
            color = sulf_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   xlim(0, 150) +  ylim(0, 370) +
   labs(title = "SO2 and sulphates", y = "total SO2", x = "free SO2", 
@@ -867,7 +862,7 @@ If we wanted to create a linear model, the variable that shows stronger relation
 
 ```{r}
 ggplot(aes(y = density, x = residual.sugar, color = alc_level), data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = 'Blues') +
   ylim(0.985,1.005) +  xlim(0,25) +
   labs(title = "Sugar, Density & Alcohol", y = "Density", x = "Residual Sugar", 
@@ -877,7 +872,7 @@ ggplot(aes(y = density, x = residual.sugar, color = alc_level), data = wdata) +
 
 ggplot(aes(y = density, x = total.sulfur.dioxide, color = sweet_level), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   xlim(8.9, 300) +  ylim(0.985, 1.005) +
   labs(title = "Density, total SO2 and Sweetness", y = "Density", 
@@ -887,7 +882,7 @@ ggplot(aes(y = density, x = total.sulfur.dioxide, color = sweet_level),
 
 ggplot(aes(y = density, x = residual.sugar, color = factor(quality)), 
        data = wdata) + 
-  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  geom_point(alpha = 0.3, position = 'jitter') +
   xlim(0, 22) + ylim(0.985, 1.005) +
   scale_color_brewer(type = 'seq', palette = "Reds") + 
   labs(title = "Density, Sugar & Quality", y = "Density", 
@@ -950,8 +945,8 @@ qplot(x = citric.acid, data = wdata, binwidth = 0.001,
 This is a fraction of the citric acid distribution, zoomed to study the unexpected peaks at 0.49 and 0.74 g/dm3, the relation between those peaks and the duplicated values was study, but just a small portion of those values was due to duplicates, we could not confirm those values were not valid, and they were included in the study.
 ### Plot Two
 
-```{r}
-one <- qplot(x = quality, data = wdata, binwidth = 1) +
+```{r  fig.height=3}
+one <- qplot(x = factor(quality), data = wdata, geom = "bar") +
   facet_wrap(~alc_level) +
   aes(fill = alc_level) +
   scale_fill_brewer(type = 'seq', palette = 'Reds', direction = 1) +
@@ -974,6 +969,7 @@ One of the limitations of our data is the scarcity of data points with extreme v
 ### Plot Three
 
 ```{r}
+theme_set(theme_dark())
 ggplot(aes(x = alcohol, y = residual.sugar, color = factor(quality)), 
        data = wdata) + 
   ylim(0, 33) +
@@ -981,7 +977,7 @@ ggplot(aes(x = alcohol, y = residual.sugar, color = factor(quality)),
        y = "Residual Sugar (g/dm3)", color = "Quality\n") +
   guides(colour = guide_legend(reverse = T, 
                                override.aes = list(alpha = 1, size = 1))) +
-  geom_point(alpha = 0.5, size = 1) +
+  geom_point(alpha = 0.3) +
   scale_color_brewer(type = 'seq', palette = 'YlOrRd', direction = 1)
 
 ```
